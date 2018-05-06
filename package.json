@@ -1,0 +1,29 @@
+{
+  "name": "tasso",
+  "version": "0.0.0",
+  "description": "Semi-structured HTTP routing with TypeScript and OpenAPI.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crdrost/tasso.git"
+  },
+  "keywords": [
+    "HTTP",
+    "router",
+    "route",
+    "routing",
+    "koa",
+    "typescript",
+    "openapi",
+    "swagger"
+  ],
+  "author": "C.R. Drost",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/crdrost/tasso/issues"
+  },
+  "homepage": "https://github.com/crdrost/tasso#readme"
+}
