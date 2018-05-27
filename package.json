@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/crdrost/tasso/issues"
   },
-  "homepage": "https://github.com/crdrost/tasso#readme"
+  "homepage": "https://github.com/crdrost/tasso#readme",
+  "dependencies": {
+    "typescript": "^2.8.3"
+  }
 }
