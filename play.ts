@@ -1,8 +1,8 @@
-interface INull {
-  type: "null";
+interface IUnit {
+  type: "unit";
   meta?: undefined;
 }
-const TNull: INull = { type: "null" };
+const TUnit: IUnit = { type: "unit" };
 interface IText {
   type: "text";
   meta?: undefined;
@@ -28,11 +28,11 @@ function TEnum<T extends SchemaDict>(dict: T): { type: "enum"; meta: T } {
   return { type: "enum", meta: dict };
 }
 
-type Schema = INull | IText | IReal | IItem | IEnum;
+type Schema = IUnit | IText | IReal | IItem | IEnum;
 type SchemaDict = { [k: string]: Schema };
 
 interface IBaseTypes<T extends SchemaDict> {
-  null: null;
+  unit: undefined;
   text: string;
   real: number;
   item: { [k in keyof T]: IValidated<T[k]> };
@@ -56,5 +56,5 @@ const testEnum = TEnum({
   abc: TReal,
   def: TText
 });
-assertValid(testEnum, ({ abc, def }) => abc(123));
-assertValid(testEnum, ({ abc, def }) => def("456"));
+assertValid(testEnum, ({ abc }) => abc(123));
+assertValid(testEnum, ({ def }) => def("456"));
