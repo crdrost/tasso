@@ -31,12 +31,15 @@ function TEnum<T extends SchemaDict>(dict: T): { type: 'enum'; meta: T } {
 type Schema = IUnit | IText | IReal | IItem | IEnum;
 type SchemaDict = { [k: string]: Schema };
 
+type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; meta: IValidated<T[k]> } };
+type Enum<T extends SchemaDict> = EnumHelper<T>[keyof T];
+
 interface IBaseTypes<T extends SchemaDict> {
   unit: undefined;
   text: string;
   real: number;
   item: { [k in keyof T]: IValidated<T[k]> };
-  enum<z>(handlers: { [k in keyof T]: (i: IValidated<T[k]>) => z }): z;
+  enum: Enum<T>;
 }
 type IValidated<T extends Schema> = IBaseTypes<T['meta']>[T['type']];
 function assertValid<T extends Schema>(type: T, validated: IValidated<T>) {
@@ -56,5 +59,5 @@ const testEnum = TEnum({
   abc: TReal,
   def: TText
 });
-assertValid(testEnum, ({ abc }) => abc(123));
-assertValid(testEnum, ({ def }) => def('456'));
+assertValid(testEnum, { type: 'abc', meta: 123 });
+assertValid(testEnum, { type: 'def', meta: '456' });
