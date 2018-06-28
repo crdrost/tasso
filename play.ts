@@ -31,18 +31,18 @@ function TEnum<T extends SchemaDict>(dict: T): { type: 'enum'; meta: T } {
 type Schema = IUnit | IText | IReal | IItem | IEnum;
 type SchemaDict = { [k: string]: Schema };
 
-type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; meta: IValidated<T[k]> } };
+type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; meta: ValueOfType<T[k]> } };
 type Enum<T extends SchemaDict> = EnumHelper<T>[keyof T];
 
 interface IBaseTypes<T extends SchemaDict> {
   unit: undefined;
   text: string;
   real: number;
-  item: { [k in keyof T]: IValidated<T[k]> };
+  item: { [k in keyof T]: ValueOfType<T[k]> };
   enum: Enum<T>;
 }
-type IValidated<T extends Schema> = IBaseTypes<T['meta']>[T['type']];
-function assertValid<T extends Schema>(type: T, validated: IValidated<T>) {
+type ValueOfType<T extends Schema> = IBaseTypes<T['meta']>[T['type']];
+function assertValid<T extends Schema>(type: T, validated: ValueOfType<T>) {
   throw new Error();
 }
 
