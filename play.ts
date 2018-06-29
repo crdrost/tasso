@@ -1,47 +1,51 @@
 interface IUnit {
   type: 'unit';
-  meta?: undefined;
+  value: undefined;
 }
-const TUnit: IUnit = { type: 'unit' };
+const TUnit: IUnit = { type: 'unit', value: undefined };
+
 interface IText {
   type: 'text';
-  meta?: undefined;
+  value: undefined;
 }
-const TText: IText = { type: 'text' };
+const TText: IText = { type: 'text', value: undefined };
+
 interface IReal {
   type: 'real';
-  meta?: undefined;
+  value: undefined;
 }
-const TReal: IReal = { type: 'real' };
-interface IItem {
-  type: 'item';
-  meta: SchemaDict;
+const TReal: IReal = { type: 'real', value: undefined };
+
+interface IProd {
+  type: 'prod';
+  value: SchemaDict;
 }
-function TItem<T extends SchemaDict>(dict: T): { type: 'item'; meta: T } {
-  return { type: 'item', meta: dict };
+function TProd<T extends SchemaDict>(dict: T): { type: 'prod'; value: T } {
+  return { type: 'prod', value: dict };
 }
+
 interface IEnum {
   type: 'enum';
-  meta: SchemaDict;
+  value: SchemaDict;
 }
-function TEnum<T extends SchemaDict>(dict: T): { type: 'enum'; meta: T } {
-  return { type: 'enum', meta: dict };
+function TEnum<T extends SchemaDict>(dict: T): { type: 'enum'; value: T } {
+  return { type: 'enum', value: dict };
 }
 
-type Schema = IUnit | IText | IReal | IItem | IEnum;
+type Schema = IUnit | IText | IReal | IProd | IEnum;
 type SchemaDict = { [k: string]: Schema };
 
-type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; meta: ValueOfType<T[k]> } };
+type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; value: ValueOfType<T[k]> } };
 type Enum<T extends SchemaDict> = EnumHelper<T>[keyof T];
 
 interface IBaseTypes<T extends SchemaDict> {
   unit: undefined;
   text: string;
   real: number;
-  item: { [k in keyof T]: ValueOfType<T[k]> };
+  prod: { [k in keyof T]: ValueOfType<T[k]> };
   enum: Enum<T>;
 }
-type ValueOfType<T extends Schema> = IBaseTypes<T['meta']>[T['type']];
+type ValueOfType<T extends Schema> = IBaseTypes<T['value']>[T['type']];
 function assertValid<T extends Schema>(type: T, validated: ValueOfType<T>) {
   throw new Error();
 }
@@ -49,7 +53,7 @@ function assertValid<T extends Schema>(type: T, validated: ValueOfType<T>) {
 assertValid(TReal, 123);
 assertValid(TText, 'abc');
 assertValid(
-  TItem({
+  TProd({
     abc: TReal,
     def: TText
   }),
@@ -59,5 +63,5 @@ const testEnum = TEnum({
   abc: TReal,
   def: TText
 });
-assertValid(testEnum, { type: 'abc', meta: 123 });
-assertValid(testEnum, { type: 'def', meta: '456' });
+assertValid(testEnum, { type: 'abc', value: 123 });
+assertValid(testEnum, { type: 'def', value: '456' });
