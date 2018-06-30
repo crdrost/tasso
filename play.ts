@@ -46,22 +46,42 @@ interface IBaseTypes<T extends SchemaDict> {
   enum: Enum<T>;
 }
 type ValueOfType<T extends Schema> = IBaseTypes<T['value']>[T['type']];
-function assertValid<T extends Schema>(type: T, validated: ValueOfType<T>) {
+
+function valueOfType<T extends Schema>(type: T): ValueOfType<T> {
   throw new Error();
 }
 
-assertValid(TReal, 123);
-assertValid(TText, 'abc');
-assertValid(
-  TProd({
-    abc: TReal,
-    def: TText
-  }),
-  { abc: 123, def: '456' }
-);
+function valid<T extends Schema, V>(type: T, value: V): V extends ValueOfType<T> ? true : false {
+  throw new Error();
+}
+
+function assertTrue(x: true) {
+  throw new Error();
+}
+function assertFalse(x: false) {
+  throw new Error();
+}
+type Validate<T extends never> = undefined;
+
+assertTrue(valid(TReal, 123));
+assertTrue(valid(TText, 'abc'));
+assertFalse(valid(TReal, 'abc'));
+assertFalse(valid(TText, 123));
+const testProduct = TProd({
+  abc: TReal,
+  def: TText
+});
+assertTrue(valid(testProduct, { abc: 123, def: '456' }));
+assertFalse(valid(testProduct, { abc: '123', def: 456 }));
+
 const testEnum = TEnum({
   abc: TReal,
   def: TText
 });
-assertValid(testEnum, { type: 'abc', value: 123 });
-assertValid(testEnum, { type: 'def', value: '456' });
+
+// The valid() function does not directly express V extends ValueOfType<T>, so it infers 'abc' (the
+// value) to have type `string` rather than type `'abc'`, then it gets these values incorrect.
+assertTrue(valid(testEnum, { type: 'abc' as 'abc', value: 123 }));
+assertTrue(valid(testEnum, { type: 'def' as 'def', value: '456' }));
+assertFalse(valid(testEnum, { type: 'abc' as 'abc', value: '123' }));
+assertFalse(valid(testEnum, { type: 'def' as 'def', value: 456 }));
