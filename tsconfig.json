@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "noEmitOnError": true,
+    "strictNullChecks": true,
+    "outDir": "dist",
+    "alwaysStrict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "rootDir": "src",
+    "target": "es2017"
+  },
+  "include": ["src/**/*.ts"]
+}

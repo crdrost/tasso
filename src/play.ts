@@ -1,20 +1,20 @@
 interface IUnit {
   type: 'unit';
-  value: undefined;
+  value: SchemaDict;
 }
-const TUnit: IUnit = { type: 'unit', value: undefined };
+const TUnit: IUnit = { type: 'unit', value: {} };
 
 interface IText {
   type: 'text';
-  value: undefined;
+  value: SchemaDict;
 }
-const TText: IText = { type: 'text', value: undefined };
+const TText: IText = { type: 'text', value: {} };
 
 interface IReal {
   type: 'real';
-  value: undefined;
+  value: SchemaDict;
 }
-const TReal: IReal = { type: 'real', value: undefined };
+const TReal: IReal = { type: 'real', value: {} };
 
 interface IProd {
   type: 'prod';
@@ -51,6 +51,10 @@ function valueOfType<T extends Schema>(type: T): ValueOfType<T> {
   throw new Error();
 }
 
+function subtypeOf<A, B>(sub: A, sup: B): A extends B ? true : false {
+  throw new Error();
+}
+
 function valid<T extends Schema, V>(type: T, value: V): V extends ValueOfType<T> ? true : false {
   throw new Error();
 }
@@ -63,16 +67,35 @@ function assertFalse(x: false) {
 }
 type Validate<T extends never> = undefined;
 
+assertTrue(subtypeOf('abc' as 'abc', 'abc' as string));
+assertTrue(subtypeOf(undefined, undefined));
+assertFalse(subtypeOf('abc', {} as object));
+assertFalse(subtypeOf(null as null, 123));
+assertFalse(subtypeOf(null as null, 123));
+
+assertTrue(valid(TUnit, undefined as undefined));
+assertFalse(valid(TUnit, null as null));
+assertFalse(valid(TUnit, 123));
+assertFalse(valid(TUnit, 'abc'));
+
 assertTrue(valid(TReal, 123));
-assertTrue(valid(TText, 'abc'));
 assertFalse(valid(TReal, 'abc'));
+assertFalse(valid(TReal, null as null));
+assertFalse(valid(TReal, undefined as undefined));
+
+assertTrue(valid(TText, 'abc'));
 assertFalse(valid(TText, 123));
+assertFalse(valid(TText, null as null));
+assertFalse(valid(TText, undefined as undefined));
+
 const testProduct = TProd({
   abc: TReal,
   def: TText
 });
 assertTrue(valid(testProduct, { abc: 123, def: '456' }));
 assertFalse(valid(testProduct, { abc: '123', def: 456 }));
+assertFalse(valid(testProduct, null as null));
+assertFalse(valid(testProduct, undefined as undefined));
 
 const testEnum = TEnum({
   abc: TReal,
