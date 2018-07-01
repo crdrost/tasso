@@ -1,38 +1,23 @@
-interface IUnit {
-  type: 'unit';
-  value: SchemaDict;
-}
-const TUnit: IUnit = { type: 'unit', value: {} };
+const TUnit = { type: 'unit' as 'unit', value: {} };
 
-interface IText {
-  type: 'text';
-  value: SchemaDict;
-}
-const TText: IText = { type: 'text', value: {} };
+const TText = { type: 'text' as 'text', value: {} };
 
-interface IReal {
-  type: 'real';
-  value: SchemaDict;
-}
-const TReal: IReal = { type: 'real', value: {} };
+const TReal = { type: 'real' as 'real', value: {} };
 
-interface IProd {
-  type: 'prod';
-  value: SchemaDict;
-}
-function TProd<T extends SchemaDict>(dict: T): { type: 'prod'; value: T } {
-  return { type: 'prod', value: dict };
+function TProd<T extends SchemaDict>(dict: T) {
+  return { type: 'prod' as 'prod', value: dict };
 }
 
-interface IEnum {
-  type: 'enum';
-  value: SchemaDict;
-}
-function TEnum<T extends SchemaDict>(dict: T): { type: 'enum'; value: T } {
-  return { type: 'enum', value: dict };
+function TEnum<T extends SchemaDict>(dict: T) {
+  return { type: 'enum' as 'enum', value: dict };
 }
 
-type Schema = IUnit | IText | IReal | IProd | IEnum;
+interface ISchema {
+  type: keyof IBaseTypes<any>;
+  value: SchemaDict;
+}
+
+type Schema = ISchema;
 type SchemaDict = { [k: string]: Schema };
 
 type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; value: ValueOfType<T[k]> } };
