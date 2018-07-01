@@ -48,24 +48,23 @@ interface IBaseTypes<T extends SchemaDict> {
 type ValueOfType<T extends Schema> = IBaseTypes<T['value']>[T['type']];
 
 function valueOfType<T extends Schema>(type: T): ValueOfType<T> {
-  throw new Error();
+  throw new Error(String(type));
 }
 
 function subtypeOf<A, B>(sub: A, sup: B): A extends B ? true : false {
-  throw new Error();
+  throw new Error(String(sub) + sup);
 }
 
 function valid<T extends Schema, V>(type: T, value: V): V extends ValueOfType<T> ? true : false {
-  throw new Error();
+  throw new Error(String(type) + value);
 }
 
 function assertTrue(x: true) {
-  throw new Error();
+  throw new Error(String(x));
 }
 function assertFalse(x: false) {
-  throw new Error();
+  throw new Error(String(x));
 }
-type Validate<T extends never> = undefined;
 
 assertTrue(subtypeOf('abc' as 'abc', 'abc' as string));
 assertTrue(subtypeOf(undefined, undefined));
