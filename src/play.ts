@@ -92,3 +92,9 @@ assertTrue(valid(testEnum, { type: 'abc' as 'abc', value: 123 }));
 assertTrue(valid(testEnum, { type: 'def' as 'def', value: '456' }));
 assertFalse(valid(testEnum, { type: 'abc' as 'abc', value: '123' }));
 assertFalse(valid(testEnum, { type: 'def' as 'def', value: 456 }));
+
+type KeySubtract<Q, R extends Q> = Q extends R ? never : Q;
+
+type ObjectSubtractKey<O, K extends keyof O> = { [key in KeySubtract<keyof O, K>]: O[key] };
+
+type TestKeySubtract = ObjectSubtractKey<{ abc: number; def: string; ghi: null }, 'abc'>;
