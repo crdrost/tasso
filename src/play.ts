@@ -36,12 +36,22 @@ function valueOfType<T extends Schema>(type: T): ValueOfType<T> {
   throw new Error(String(type));
 }
 
-function subtypeOf<A, B>(sub: A, sup: B): A extends B ? true : false {
+type subtype<A, B> = A extends B ? true : false;
+
+function subtypeOf<A, B>(sub: A, sup: B): subtype<A, B> {
   throw new Error(String(sub) + sup);
 }
 
 function valid<T extends Schema, V>(type: T, value: V): V extends ValueOfType<T> ? true : false {
   throw new Error(String(type) + value);
+}
+
+type and<A extends boolean, B extends boolean> = A extends true
+  ? (B extends true ? true : false)
+  : false;
+
+function typeEq<A, B>(a: A, b: B): and<subtype<A, B>, subtype<B, A>> {
+  throw new Error(String(a) + b);
 }
 
 function assertTrue(x: true) {
@@ -98,3 +108,4 @@ type KeySubtract<Q, R extends Q> = Q extends R ? never : Q;
 type ObjectSubtractKey<O, K extends keyof O> = { [key in KeySubtract<keyof O, K>]: O[key] };
 
 type TestKeySubtract = ObjectSubtractKey<{ abc: number; def: string; ghi: null }, 'abc'>;
+assertTrue(typeEq({} as TestKeySubtract, { def: 'string', ghi: null }));
