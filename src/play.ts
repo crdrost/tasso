@@ -1,8 +1,8 @@
-const TUnit = { type: 'unit' as 'unit', value: {} };
+const TUnit = { type: 'unit' as 'unit', value: undefined };
 
-const TText = { type: 'text' as 'text', value: {} };
+const TText = { type: 'text' as 'text', value: undefined };
 
-const TReal = { type: 'real' as 'real', value: {} };
+const TReal = { type: 'real' as 'real', value: undefined };
 
 function TProd<T extends SchemaDict>(dict: T) {
   return { type: 'prod' as 'prod', value: dict };
@@ -12,25 +12,35 @@ function TEnum<T extends SchemaDict>(dict: T) {
   return { type: 'enum' as 'enum', value: dict };
 }
 
-interface ISchema {
-  type: keyof IBaseTypes<any>;
+interface IPrimitive {
+  type: keyof IPrimMap;
+  value: undefined;
+}
+
+interface IStructuredDict {
+  type: keyof IDictMap<any>;
   value: SchemaDict;
 }
 
-type Schema = ISchema;
+type Schema = IPrimitive | IStructuredDict;
 type SchemaDict = { [k: string]: Schema };
 
 type EnumHelper<T extends SchemaDict> = { [k in keyof T]: { type: k; value: ValueOfType<T[k]> } };
 type Enum<T extends SchemaDict> = EnumHelper<T>[keyof T];
 
-interface IBaseTypes<T extends SchemaDict> {
+interface IPrimMap {
   unit: undefined;
   text: string;
   real: number;
+}
+
+interface IDictMap<T extends SchemaDict> {
   prod: { [k in keyof T]: ValueOfType<T[k]> };
   enum: Enum<T>;
 }
-type ValueOfType<T extends Schema> = IBaseTypes<T['value']>[T['type']];
+type ValueOfType<T extends Schema> = T extends IStructuredDict
+  ? IDictMap<T['value']>[T['type']]
+  : T extends IPrimitive ? IPrimMap[T['type']] : never;
 
 function valueOfType<T extends Schema>(type: T): ValueOfType<T> {
   throw new Error(String(type));
