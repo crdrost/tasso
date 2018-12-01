@@ -49,35 +49,35 @@ export type TSchema = {[k: string]: TypeObject<TSchema>};
 type KVPair<key extends string, value> = {[k in key]: value};
 
 type TEnumHelper<
-  Env extends TSchema,
   T extends TDict<Env>,
   typeKey extends string,
-  valueKey extends string
+  valueKey extends string,
+  Env extends TSchema
 > = {[k in keyof T]: KVPair<typeKey, k> & KVPair<valueKey, IEval<T[k], Env>['result']>};
 
-type IEvalObject<Env extends TSchema, T extends TDict<Env>> = {[k in keyof T]: IEval<T[k], Env>['result']};
+type IEvalObject<T extends TDict<Env>, Env extends TSchema> = {[k in keyof T]: IEval<T[k], Env>['result']};
 
 type TEnum<
-  Env extends TSchema,
   T extends TDict<Env>,
   typeKey extends string,
-  valueKey extends string
-> = TEnumHelper<Env, T, typeKey, valueKey>[keyof T];
+  valueKey extends string,
+  Env extends TSchema
+> = TEnumHelper<T, typeKey, valueKey, Env>[keyof T];
 
 // the 'result' key is needed to stop TypeScript from complaining, totally legitimately, about the circular references
 // that will ensue if we do this.
-export type SchemaReference<Env extends TSchema, k extends keyof Env> = IEval<
+export type SchemaReference<k extends keyof Env, Env extends TSchema> = IEval<
   Env[k],
   Env
 >['result'];
 
 // export type TypeObject<Env extends TSchema> = INoArgs | IText | IObject<Env> | IEnumerated<Env> | IReference<Env>
 type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IReference<Env>
-  ? {result: SchemaReference<Env, tso['to']>}
+  ? {result: SchemaReference<tso['to'], Env>}
   : tso extends IEnumerated<Env>
-  ? {result: TEnum<Env, tso['meta'], tso['typeKey'], tso['valueKey']>}
+  ? {result: TEnum<tso['meta'], tso['typeKey'], tso['valueKey'], Env>}
   : tso extends IObject<Env>
-  ? {result: IEvalObject<Env, tso['meta']>}
+  ? {result: IEvalObject<tso['meta'], Env>}
   : tso extends IMaybe<Env>
   ? {result: null | IEval<tso['meta'], Env>['result']}
   : tso extends IText
@@ -85,5 +85,3 @@ type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IRefe
   : tso extends INoArgs
   ? {result: IMapNoArgs[tso['type']]}
   : never;
-
-  

@@ -6,7 +6,7 @@ function valid<T extends keyof E, E extends TSchema, V>(
   type: T,
   value: V,
   env: E
-): and<subtype<V, SchemaReference<E, T>>, subtype<E, Record<string, TypeObject<E>>>> {
+): and<subtype<V, SchemaReference<T, E>>, subtype<E, Record<string, TypeObject<E>>>> {
   throw new Error(String(type) + value + env);
 }
 
@@ -30,7 +30,7 @@ function assertFalse(x: false) {
 // TypeScript gives an error about how `SchemaReference` does not match `ExpectedEnum` precisely
 // **because** the types are eq
 
-function valueOfType<k extends keyof E, E extends TSchema>(type: k, env: E): SchemaReference<E, k> {
+function valueOfType<k extends keyof E, E extends TSchema>(type: k, env: E): SchemaReference<k, E> {
   throw new Error(String(type) + env);
 }
 /*
