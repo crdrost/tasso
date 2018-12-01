@@ -1,4 +1,4 @@
-import {TypeObject, TSchema, SchemaReference} from './types';
+import {TypeObject, TSchema, SchemaReference, ValueOfType, SingleType} from './types';
 
 type subtype<A, B> = A extends B ? true : false;
 
@@ -25,13 +25,19 @@ function assertFalse(x: false) {
 // example usage:
 //
 //
-//   const x: ExpectedEnum = valueOfType('testEnum', schemaLib);
+//   const x: ExpectedEnum = schemaReference('testEnum', schemaLib);
 //
 // TypeScript gives an error about how `SchemaReference` does not match `ExpectedEnum` precisely
 // **because** the types are eq
 
-function valueOfType<k extends keyof E, E extends TSchema>(type: k, env: E): SchemaReference<k, E> {
+function schemaReference<k extends keyof E, E extends TSchema>(
+  type: k,
+  env: E
+): SchemaReference<k, E> {
   throw new Error(String(type) + env);
+}
+function valueOfType<t extends SingleType>(type: t): ValueOfType<t> {
+  throw new Error(String(type));
 }
 /*
 // occasionally useful for debugging but TSLint is upset that we're not using it in the committed tests:
@@ -61,31 +67,40 @@ const schemaLib = {
     valueKey: 'value' as 'value'
   }
 };
-assertTrue(typeEq(valueOfType('testUndefined', schemaLib), undefined as undefined));
+
+assertTrue(typeEq(valueOfType(tUnit), undefined as undefined));
+assertTrue(typeEq(schemaReference('testUndefined', schemaLib), undefined as undefined));
 assertTrue(valid('testUndefined', undefined, schemaLib));
 assertFalse(valid('testUndefined', null, schemaLib));
 assertFalse(valid('testUndefined', 123, schemaLib));
 assertFalse(valid('testUndefined', 'abc', schemaLib));
 
-assertTrue(typeEq(valueOfType('testNumber', schemaLib), 123 as number));
+assertTrue(typeEq(valueOfType(tNum), 123));
+assertTrue(typeEq(schemaReference('testNumber', schemaLib), 123 as number));
 assertTrue(valid('testNumber', 123, schemaLib));
 assertFalse(valid('testNumber', 'abc', schemaLib));
 assertFalse(valid('testNumber', null, schemaLib));
 assertFalse(valid('testNumber', undefined, schemaLib));
 
-assertTrue(typeEq(valueOfType('testString', schemaLib), 'abc' as string));
+assertTrue(typeEq(valueOfType(tText), 'abc'));
+assertTrue(typeEq(schemaReference('testString', schemaLib), 'abc' as string));
 assertTrue(valid('testString', 'abc', schemaLib));
 assertFalse(valid('testString', 123, schemaLib));
 assertFalse(valid('testString', null, schemaLib));
 assertFalse(valid('testString', undefined, schemaLib));
 
-assertTrue(typeEq(valueOfType('testMaybeString', schemaLib), null as null | string));
+assertTrue(
+  typeEq(valueOfType({type: 'maybe' as 'maybe', meta: {type: 'number'}}), 123 as null | number)
+);
+assertTrue(typeEq(schemaReference('testMaybeString', schemaLib), null as null | string));
 assertTrue(valid('testMaybeString', 'abc', schemaLib));
 assertTrue(valid('testMaybeString', null, schemaLib));
 assertFalse(valid('testMaybeString', 123, schemaLib));
 assertFalse(valid('testMaybeString', undefined, schemaLib));
 
-assertTrue(typeEq(valueOfType('testObject', schemaLib), {abc: undefined, def: 123, ghi: 'abc'}));
+assertTrue(
+  typeEq(schemaReference('testObject', schemaLib), {abc: undefined, def: 123, ghi: 'abc'})
+);
 assertFalse(valid('testObject', {def: 123, ghi: 'abc'}, schemaLib));
 
 type ExpectedEnum =
@@ -94,6 +109,44 @@ type ExpectedEnum =
   | {type: 'ghi'; value: string};
 
 assertTrue(
-  typeEq(valueOfType('testEnum', schemaLib), {type: 'abc', value: undefined} as ExpectedEnum)
+  typeEq(schemaReference('testEnum', schemaLib), {type: 'abc', value: undefined} as ExpectedEnum)
 );
 assertFalse(valid('testEnum', {type: 'abc' as 'abc'}, schemaLib));
+
+// test basic recursion
+const stringStack = {
+  item: {type: 'text' as 'text'},
+  cell: {
+    type: 'maybe' as 'maybe',
+    meta: {
+      type: 'object' as 'object',
+      meta: {
+        first: {type: 'ref' as 'ref', to: 'item' as 'item'},
+        rest: {type: 'ref' as 'ref', to: 'cell' as 'cell'}
+      }
+    }
+  }
+};
+
+const testStack = {first: 'abc', rest: {first: 'def', rest: {first: 'ghi', rest: null}}}
+assertTrue(valid('cell' as 'cell', testStack, stringStack));
+assertTrue(valid('cell' as 'cell', {first: 'abc', rest: null}, stringStack));
+assertTrue(valid('cell' as 'cell', null, stringStack));
+assertFalse(valid('cell' as 'cell', {}, stringStack));
+assertFalse(valid('cell' as 'cell', {first: ''}, stringStack));
+assertFalse(valid('cell' as 'cell', {first: 123, rest: null}, stringStack));
+assertFalse(valid('cell' as 'cell', undefined, stringStack));
+
+const badRef = {
+  cell: {
+    type: 'maybe' as 'maybe',
+    meta: {
+      type: 'object' as 'object',
+      meta: {
+        first: {type: 'ref' as 'ref', to: 'item' as 'item'},
+        rest: {type: 'ref' as 'ref', to: 'cell' as 'cell'}
+      }
+    }
+  }
+}
+assertFalse(valid('cell' as 'cell', testStack, badRef));

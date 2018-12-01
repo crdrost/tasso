@@ -44,7 +44,7 @@ export type TypeObject<Env extends TSchema> =
   | IObject<Env>
   | IEnumerated<Env>
   | IReference<Env>;
-export type TSchema = {[k: string]: TypeObject<TSchema>};
+export type TSchema = {[k: string]: SingleType};
 
 type KVPair<key extends string, value> = {[k in key]: value};
 
@@ -85,3 +85,7 @@ type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IRefe
   : tso extends INoArgs
   ? {result: IMapNoArgs[tso['type']]}
   : never;
+
+export type SingleType = TypeObject<TSchema>
+
+export type ValueOfType<v extends SingleType> = SchemaReference<'self', {self: v}>
