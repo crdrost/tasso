@@ -12,14 +12,16 @@
     "url": "git+https://github.com/crdrost/tasso.git"
   },
   "keywords": [
-    "HTTP",
-    "router",
-    "route",
-    "routing",
-    "koa",
+    "data-modeling",
+    "json",
+    "sanitization",
+    "sanitize",
+    "schema",
+    "type",
+    "typecheck",
     "typescript",
-    "openapi",
-    "swagger"
+    "validator",
+    "validation"
   ],
   "author": "C.R. Drost",
   "license": "MPL-2.0",
@@ -28,13 +30,12 @@
   },
   "homepage": "https://github.com/crdrost/tasso#readme",
   "devDependencies": {
+    "prettier": "^1.15.3",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.17.0",
     "tslint-plugin-prettier": "^2.0.1",
     "typedoc": "^0.13.0",
     "typescript": "^3.2.1"
   },
-  "dependencies": {
-    "prettier": "^1.15.3"
-  }
+  "dependencies": {}
 }
