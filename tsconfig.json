@@ -5,7 +5,6 @@
     "outDir": "dist",
     "alwaysStrict": true,
     "declaration": true,
-    "declarationMap": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
