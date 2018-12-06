@@ -22,21 +22,20 @@ interface IMaybe<Env extends TSchema> {
 
 interface IObject<Env extends TSchema> {
   type: 'object';
-  meta: TDict<Env>;
+  meta: TypeProps<Env>;
 }
 
 interface IEnumerated<Env extends TSchema> {
   type: 'enum';
-  meta: TDict<Env>;
+  options: Record<string, TypeProps<Env>>;
   typeKey: string;
-  valueKey: string;
 }
 
 interface IReference<Env extends TSchema> {
   type: 'ref';
   to: keyof Env;
 }
-type TDict<Env extends TSchema> = {[k: string]: TypeObject<Env>};
+type TypeProps<Env extends TSchema> = Record<string, TypeObject<Env>>;
 export type TypeObject<Env extends TSchema> =
   | INoArgs
   | IText
@@ -46,23 +45,19 @@ export type TypeObject<Env extends TSchema> =
   | IReference<Env>;
 export type TSchema = {[k: string]: SingleType};
 
-type KVPair<key extends string, value> = {[k in key]: value};
-
 type TEnumHelper<
-  T extends TDict<Env>,
+  opts extends Record<string, TypeProps<Env>>,
   typeKey extends string,
-  valueKey extends string,
   Env extends TSchema
-> = {[k in keyof T]: KVPair<typeKey, k> & KVPair<valueKey, IEval<T[k], Env>['result']>};
+> = {[flag in keyof opts]: {[t in typeKey]: flag} & IEvalProps<opts[flag], Env>};
 
-type IEvalObject<T extends TDict<Env>, Env extends TSchema> = {[k in keyof T]: IEval<T[k], Env>['result']};
+type IEvalProps<T extends TypeProps<Env>, Env extends TSchema> = {[k in keyof T]: IEval<T[k], Env>['result']};
 
 type TEnum<
-  T extends TDict<Env>,
+  T extends Record<string, TypeProps<Env>>,
   typeKey extends string,
-  valueKey extends string,
   Env extends TSchema
-> = TEnumHelper<T, typeKey, valueKey, Env>[keyof T];
+> = TEnumHelper<T, typeKey, Env>[keyof T];
 
 // the 'result' key is needed to stop TypeScript from complaining, totally legitimately, about the circular references
 // that will ensue if we do this.
@@ -75,9 +70,9 @@ export type SchemaReference<k extends keyof Env, Env extends TSchema> = IEval<
 type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IReference<Env>
   ? {result: SchemaReference<tso['to'], Env>}
   : tso extends IEnumerated<Env>
-  ? {result: TEnum<tso['meta'], tso['typeKey'], tso['valueKey'], Env>}
+  ? {result: TEnum<tso['options'], tso['typeKey'], Env>}
   : tso extends IObject<Env>
-  ? {result: IEvalObject<tso['meta'], Env>}
+  ? {result: IEvalProps<tso['meta'], Env>}
   : tso extends IMaybe<Env>
   ? {result: null | IEval<tso['meta'], Env>['result']}
   : tso extends IText

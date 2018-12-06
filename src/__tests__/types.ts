@@ -95,7 +95,7 @@ const run = (self: any): void => {
     testObject: {type: 'object' as 'object', meta: {abc: tUnit, def: tNum, ghi: tText}},
     testEnum: {
       type: 'enum' as 'enum',
-      meta: {abc: tUnit, def: tNum, ghi: tText},
+      options: {abc: {value: tUnit}, def: {value: tNum}, ghi: {value: tText}},
       typeKey: 'type' as 'type',
       valueKey: 'value' as 'value'
     }
