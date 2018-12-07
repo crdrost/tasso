@@ -35,6 +35,18 @@ interface IReference<Env extends TSchema> {
   type: 'ref';
   to: keyof Env;
 }
+
+interface IList<Env extends TSchema> {
+  type: 'list';
+  elements: TypeObject<Env>;
+}
+
+interface IUnion<Env extends TSchema> {
+  type: 'union';
+  first: TypeObject<Env>;
+  second: TypeObject<Env>;
+}
+
 type TypeProps<Env extends TSchema> = Record<string, TypeObject<Env>>;
 export type TypeObject<Env extends TSchema> =
   | INoArgs
@@ -42,7 +54,9 @@ export type TypeObject<Env extends TSchema> =
   | IMaybe<Env>
   | IObject<Env>
   | IEnumerated<Env>
-  | IReference<Env>;
+  | IReference<Env>
+  | IList<Env>
+  | IUnion<Env>;
 export type TSchema = {[k: string]: SingleType};
 
 type TEnumHelper<
@@ -79,6 +93,10 @@ type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IRefe
   ? {result: string}
   : tso extends INoArgs
   ? {result: IMapNoArgs[tso['type']]}
+  : tso extends IList<Env>
+  ? {result: Array<IEval<tso['elements'], Env>['result']>}
+  : tso extends IUnion<Env>
+  ? {result: IEval<tso['first'], Env>['result'] | IEval<tso['second'], Env>['result'] }
   : never;
 
 export type SingleType = TypeObject<TSchema>

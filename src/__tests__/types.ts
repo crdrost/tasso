@@ -7,7 +7,7 @@
  * `assertTrue(x: true): void` and `assertFalse(x: false): void` which throw runtime exceptions if
  * actually run, but which will fail to typecheck if the arguments inside of them are either
  * uncertain (`boolean`) or wrong (`false` when they're supposed to be `true` or vice versa). The
- * rest of this is based on parametric types which infer `true` or `false`, call them "type 
+ * rest of this is based on parametric types which infer `true` or `false`, call them "type
  * conditionals".
  */
 import {TypeObject, TSchema, SchemaReference, ValueOfType, SingleType} from '../types';
@@ -28,7 +28,7 @@ type and<A extends boolean, B extends boolean> = A extends true
  * A type conditional testing if a value matches a `SchemaReference`. It tests whether the schema
  * maps strings to type objects according to that schema, and it tests whether this particular
  * type object is inhabited by the given value.
- * 
+ *
  * @param value The value to be tested
  * @param type  The name of the type object in the schema
  * @param env   The schema
@@ -40,7 +40,6 @@ function valid<T extends keyof E, E extends TSchema, V>(
 ): and<subtype<V, SchemaReference<T, E>>, subtype<E, Record<string, TypeObject<E>>>> {
   throw new Error(String(type) + value + env);
 }
-
 
 function assertTrue(x: true) {
   throw new Error(String(x));
@@ -86,66 +85,85 @@ const run = (self: any): void => {
   const tNum = {type: 'number' as 'number'};
   const tUnit = {type: 'unit' as 'unit'};
   const tText = {type: 'text' as 'text'};
-  
+
   const schemaLib = {
     testUndefined: tUnit,
     testNumber: tNum,
     testString: tText,
-    testMaybeString: {type: 'maybe' as 'maybe', meta: tText},
+    testMaybeString: {type: 'union' as 'union', first: tUnit, second: tText},
     testObject: {type: 'object' as 'object', meta: {abc: tUnit, def: tNum, ghi: tText}},
     testEnum: {
       type: 'enum' as 'enum',
       options: {abc: {value: tUnit}, def: {value: tNum}, ghi: {value: tText}},
       typeKey: 'type' as 'type',
       valueKey: 'value' as 'value'
+    },
+    testUnion: {
+      type: 'union' as 'union',
+      first: tNum,
+      second: tText
+    },
+    testList: {
+      type: 'list' as 'list',
+      elements: tNum
     }
   };
-  
+
   assertTrue(typeEq(valueOfType(tUnit), undefined as undefined));
   assertTrue(typeEq(schemaReference('testUndefined', schemaLib), undefined as undefined));
   assertTrue(valid(undefined, 'testUndefined', schemaLib));
   assertFalse(valid(null, 'testUndefined', schemaLib));
   assertFalse(valid(123, 'testUndefined', schemaLib));
   assertFalse(valid('abc', 'testUndefined', schemaLib));
-  
+
   assertTrue(typeEq(valueOfType(tNum), 123));
   assertTrue(typeEq(schemaReference('testNumber', schemaLib), 123 as number));
   assertTrue(valid(123, 'testNumber', schemaLib));
   assertFalse(valid('abc', 'testNumber', schemaLib));
   assertFalse(valid(null, 'testNumber', schemaLib));
   assertFalse(valid(undefined, 'testNumber', schemaLib));
-  
+
   assertTrue(typeEq(valueOfType(tText), 'abc'));
   assertTrue(typeEq(schemaReference('testString', schemaLib), 'abc' as string));
   assertTrue(valid('abc', 'testString', schemaLib));
   assertFalse(valid(123, 'testString', schemaLib));
   assertFalse(valid(null, 'testString', schemaLib));
   assertFalse(valid(undefined, 'testString', schemaLib));
-  
+
   assertTrue(
-    typeEq(valueOfType({type: 'maybe' as 'maybe', meta: {type: 'number'}}), 123 as null | number)
+    typeEq(
+      valueOfType({type: 'union' as 'union', first: {type: 'unit'}, second: {type: 'number'}}),
+      123 as undefined | number
+    )
   );
-  assertTrue(typeEq(schemaReference('testMaybeString', schemaLib), null as null | string));
+  assertTrue(
+    typeEq(schemaReference('testMaybeString', schemaLib), undefined as undefined | string)
+  );
   assertTrue(valid('abc', 'testMaybeString', schemaLib));
-  assertTrue(valid(null, 'testMaybeString', schemaLib));
+  assertTrue(valid(undefined, 'testMaybeString', schemaLib));
   assertFalse(valid(123, 'testMaybeString', schemaLib));
-  assertFalse(valid(undefined, 'testMaybeString', schemaLib));
-  
+  assertFalse(valid(null, 'testMaybeString', schemaLib));
+
   assertTrue(
     typeEq(schemaReference('testObject', schemaLib), {abc: undefined, def: 123, ghi: 'abc'})
   );
   assertFalse(valid({def: 123, ghi: 'abc'}, 'testObject', schemaLib));
-  
+
+  assertTrue(typeEq(schemaReference('testUnion', schemaLib), 123 as string | number));
+  assertTrue(valid(123, 'testUnion', schemaLib));
+  assertTrue(valid('abc', 'testUnion', schemaLib));
+  assertFalse(valid(undefined, 'testUnion', schemaLib));
+
   type ExpectedEnum =
     | {type: 'abc'; value: undefined}
     | {type: 'def'; value: number}
     | {type: 'ghi'; value: string};
-  
+
   assertTrue(
     typeEq(schemaReference('testEnum', schemaLib), {type: 'abc', value: undefined} as ExpectedEnum)
   );
   assertFalse(valid({type: 'abc' as 'abc'}, 'testEnum', schemaLib));
-  
+
   // test basic recursion
   const stringStack = {
     item: {type: 'text' as 'text'},
@@ -160,7 +178,7 @@ const run = (self: any): void => {
       }
     }
   };
-  
+
   const testStack = {first: 'abc', rest: {first: 'def', rest: {first: 'ghi', rest: null}}};
   assertTrue(valid(testStack, 'cell' as 'cell', stringStack));
   assertTrue(valid({first: 'abc', rest: null}, 'cell' as 'cell', stringStack));
@@ -169,7 +187,7 @@ const run = (self: any): void => {
   assertFalse(valid({first: ''}, 'cell' as 'cell', stringStack));
   assertFalse(valid({first: 123, rest: null}, 'cell' as 'cell', stringStack));
   assertFalse(valid(undefined, 'cell' as 'cell', stringStack));
-  
+
   const badRef = {
     cell: {
       type: 'maybe' as 'maybe',
@@ -182,14 +200,18 @@ const run = (self: any): void => {
       }
     }
   };
-  
+
   // Note that `null` on this schema is a valid inhabitant of any list type. what is failing here is
-  // the assertion that `badRef` is a valid schema **in the first place** before we even get to the 
+  // the assertion that `badRef` is a valid schema **in the first place** before we even get to the
   // question of whether `null` is a valid inhabitant of this schema.
   //
   // That is, this should pass `subtypeof<null, SchemaReference<'cell', typeof badRef>>` but our
   // schema above also checked whether `
-  assertFalse(valid(null, 'cell' as 'cell', badRef));  
+  assertFalse(valid(null, 'cell' as 'cell', badRef));
+
+  assertTrue(typeEq(schemaReference('testList', schemaLib), [123]));
+  assertFalse(valid(['abc'], 'testList', schemaLib));
+  assertFalse(valid(123, 'testList', schemaLib));
 };
 
 // this just exists to stop `run` from generating a typescript error about dead code.
