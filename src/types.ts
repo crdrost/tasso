@@ -1,11 +1,10 @@
-interface IMapNoArgs {
-  integer: number;
-  number: number;
-  unit: undefined;
+interface IUnit {
+  type: 'unit';
 }
 
-interface INoArgs {
-  type: keyof IMapNoArgs;
+interface INumber {
+  type: 'number';
+  integer?: boolean;
 }
 
 interface IText {
@@ -44,7 +43,8 @@ interface IUnion<Env extends TSchema> {
 
 type TypeProps<Env extends TSchema> = Record<string, TypeObject<Env>>;
 export type TypeObject<Env extends TSchema> =
-  | INoArgs
+  | IUnit
+  | INumber
   | IText
   | IObject<Env>
   | IEnumerated<Env>
@@ -83,8 +83,10 @@ type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IRefe
   ? {result: IEvalProps<tso['meta'], Env>}
   : tso extends IText
   ? {result: string}
-  : tso extends INoArgs
-  ? {result: IMapNoArgs[tso['type']]}
+  : tso extends IUnit
+  ? {result: undefined}
+  : tso extends INumber
+  ? {result: number}
   : tso extends IList<Env>
   ? {result: Array<IEval<tso['elements'], Env>['result']>}
   : tso extends IUnion<Env>
