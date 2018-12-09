@@ -15,17 +15,12 @@ interface IText {
   maxLength?: number;
 }
 
-interface IMaybe<Env extends TSchema> {
-  type: 'maybe';
-  meta: TypeObject<Env>;
-}
-
 interface IObject<Env extends TSchema> {
   type: 'object';
   meta: TypeProps<Env>;
 }
 
-interface IEnumerated<Env extends TSchema> {
+export interface IEnumerated<Env extends TSchema> {
   type: 'enum';
   options: Record<string, TypeProps<Env>>;
   typeKey: string;
@@ -51,7 +46,6 @@ type TypeProps<Env extends TSchema> = Record<string, TypeObject<Env>>;
 export type TypeObject<Env extends TSchema> =
   | INoArgs
   | IText
-  | IMaybe<Env>
   | IObject<Env>
   | IEnumerated<Env>
   | IReference<Env>
@@ -87,8 +81,6 @@ type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IRefe
   ? {result: TEnum<tso['options'], tso['typeKey'], Env>}
   : tso extends IObject<Env>
   ? {result: IEvalProps<tso['meta'], Env>}
-  : tso extends IMaybe<Env>
-  ? {result: null | IEval<tso['meta'], Env>['result']}
   : tso extends IText
   ? {result: string}
   : tso extends INoArgs

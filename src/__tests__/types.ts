@@ -168,8 +168,9 @@ const run = (self: any): void => {
   const stringStack = {
     item: {type: 'text' as 'text'},
     cell: {
-      type: 'maybe' as 'maybe',
-      meta: {
+      type: 'union' as 'union',
+      first: tUnit,
+      second: {
         type: 'object' as 'object',
         meta: {
           first: {type: 'ref' as 'ref', to: 'item' as 'item'},
@@ -179,19 +180,20 @@ const run = (self: any): void => {
     }
   };
 
-  const testStack = {first: 'abc', rest: {first: 'def', rest: {first: 'ghi', rest: null}}};
+  const testStack = {first: 'abc', rest: {first: 'def', rest: {first: 'ghi', rest: undefined}}};
   assertTrue(valid(testStack, 'cell' as 'cell', stringStack));
-  assertTrue(valid({first: 'abc', rest: null}, 'cell' as 'cell', stringStack));
-  assertTrue(valid(null, 'cell' as 'cell', stringStack));
+  assertTrue(valid({first: 'abc', rest: undefined}, 'cell' as 'cell', stringStack));
+  assertTrue(valid(undefined, 'cell' as 'cell', stringStack));
   assertFalse(valid({}, 'cell' as 'cell', stringStack));
   assertFalse(valid({first: ''}, 'cell' as 'cell', stringStack));
   assertFalse(valid({first: 123, rest: null}, 'cell' as 'cell', stringStack));
-  assertFalse(valid(undefined, 'cell' as 'cell', stringStack));
+  assertFalse(valid(null, 'cell' as 'cell', stringStack));
 
   const badRef = {
     cell: {
-      type: 'maybe' as 'maybe',
-      meta: {
+      type: 'union' as 'union',
+      first: tUnit,
+      second: {
         type: 'object' as 'object',
         meta: {
           first: {type: 'ref' as 'ref', to: 'item' as 'item'},
