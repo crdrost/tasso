@@ -10,7 +10,7 @@
  * rest of this is based on parametric types which infer `true` or `false`, call them "type
  * conditionals".
  */
-import {TypeObject, TSchema, SchemaReference, ValueOfType, SingleType} from '../types';
+import {TypeObject, TSchema, SchemaReference, ValueOfSingleType, SingleType} from '../types';
 
 /**
  * A type conditional for whether the first argument is a subtype of the second.
@@ -48,22 +48,13 @@ function assertFalse(x: false) {
   throw new Error(String(x));
 }
 
-// the following functions are very useful for debugging but commented out to appease TSLint.
-// example usage:
-//
-//
-//   const x: ExpectedEnum = schemaReference('testEnum', schemaLib);
-//
-// TypeScript gives an error about how `SchemaReference` does not match `ExpectedEnum` precisely
-// **because** the types are eq
-
 function schemaReference<k extends keyof E, E extends TSchema>(
   type: k,
   env: E
 ): SchemaReference<k, E> {
   throw new Error(String(type) + env);
 }
-function valueOfType<t extends SingleType>(type: t): ValueOfType<t> {
+function valueOfType<t extends SingleType>(type: t): ValueOfSingleType<t> {
   throw new Error(String(type));
 }
 /*
@@ -92,8 +83,8 @@ const run = (self: any): void => {
     testString: tText,
     testMaybeString: {type: 'union' as 'union', first: tUnit, second: tText},
     testObject: {type: 'object' as 'object', meta: {abc: tUnit, def: tNum, ghi: tText}},
-    testEnum: {
-      type: 'enum' as 'enum',
+    testChoice: {
+      type: 'choice' as 'choice',
       options: {abc: {value: tUnit}, def: {value: tNum}, ghi: {value: tText}},
       typeKey: 'type' as 'type',
       valueKey: 'value' as 'value'
@@ -154,15 +145,18 @@ const run = (self: any): void => {
   assertTrue(valid('abc', 'testUnion', schemaLib));
   assertFalse(valid(undefined, 'testUnion', schemaLib));
 
-  type ExpectedEnum =
+  type ExpectedChoice =
     | {type: 'abc'; value: undefined}
     | {type: 'def'; value: number}
     | {type: 'ghi'; value: string};
 
   assertTrue(
-    typeEq(schemaReference('testEnum', schemaLib), {type: 'abc', value: undefined} as ExpectedEnum)
+    typeEq(schemaReference('testChoice', schemaLib), {
+      type: 'abc',
+      value: undefined
+    } as ExpectedChoice)
   );
-  assertFalse(valid({type: 'abc' as 'abc'}, 'testEnum', schemaLib));
+  assertFalse(valid({type: 'abc' as 'abc'}, 'testChoice', schemaLib));
 
   // test basic recursion
   const stringStack = {
@@ -217,4 +211,4 @@ const run = (self: any): void => {
 };
 
 // this just exists to stop `run` from generating a typescript error about dead code.
-run(run);
+test('static compilation of types', () => run(run));

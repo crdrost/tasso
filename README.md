@@ -61,7 +61,7 @@ This library takes the following stand:
   related types that can reference each other. Convenience functions are provided to construct it,
   which allow you to avoid writing `"object" as "object"` and such over and over again.
 - Given that schema's type, `typeof tso`, there is a TypeScript derivation, say,
-  `ValueOfType<k extends keyof T, T extends Schema>`, for the values which inhabit that type.
+  `ValueOfType<k extends TypeObject<T>, T extends Schema>`, for the values which inhabit that type.
 - There is a validation function from a value of type `any` to the derived value-type.
 - The schemas can be threaded through with consistent metadata. I am not sure that this is
   absolutely essential but I mean it's a nice-to-have.
@@ -71,13 +71,9 @@ This library takes the following stand:
   schema is valid.
 
 The cost is just that you must construct your types with the conventions of this library; in
-particular that means that sum-types must enumerate based on a `type` key pointing at a string. In
-addition there are many things that we'd like but cannot offer yet:
-
-- I'd like this to support ADTs or maybe even GADTs but we'd need a good story on how to handle type
-  variables.
-- I'm not actually sure that it's out of the question to make sum types enumerate based on a
-  different key if you are hyper-specific?
+particular that means that sum-types must discriminate based on a fixed key pointing at a string. In
+addition there are many things that we'd like but cannot offer yet, for example I'd like this to
+support ADTs or maybe even GADTs but we'd need a good story on how to handle type variables.
 
 # How to model data the `tasso` way
 
@@ -85,7 +81,7 @@ Tasso is strongly based on the idea that there is an isomorphism between the dat
 and the control structures that consume them. Here are the basic control structures that tasso
 targets and the data structures that they correspond to:
 
-- `switch (obj[typeKey])` statements: entities that tasso calls `enum`s and type theorists call
+- `switch (obj[typeKey])` statements: entities that tasso calls `choice`s and type theorists call
   “tagged unions” or “sum types.” Tasso, like the control structure, requires the `typeKey` to be
   constant for all such objects, so if you want to use TypeScript's `|` operator more generally you
   will need to use union schemas below.
