@@ -9,9 +9,6 @@ export interface INumber {
 
 export interface IText {
   type: 'text';
-  regex?: RegExp;
-  minLength?: number;
-  maxLength?: number;
 }
 
 export interface IObject<Env extends TSchema> {
