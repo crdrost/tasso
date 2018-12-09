@@ -72,7 +72,7 @@ export type SchemaReference<k extends keyof Env, Env extends TSchema> = IEval<
 >['result'];
 
 // export type TypeObject<Env extends TSchema> = INoArgs | IText | IObject<Env> | IEnumerated<Env> | IReference<Env>
-type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IReference<Env>
+export type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IReference<Env>
   ? {result: SchemaReference<tso['to'], Env>}
   : tso extends IEnumerated<Env>
   ? {result: TEnum<tso['options'], tso['typeKey'], Env>}
