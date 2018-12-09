@@ -32,6 +32,11 @@ export interface IList<Env extends TSchema> {
   elements: TypeObject<Env>;
 }
 
+export interface IDict<Env extends TSchema> {
+  type: 'dict';
+  elements: TypeObject<Env>;
+}
+
 export interface IUnion<Env extends TSchema> {
   type: 'union';
   first: TypeObject<Env>;
@@ -47,6 +52,7 @@ export type TypeObject<Env extends TSchema> =
   | IEnumerated<Env>
   | IReference<Env>
   | IList<Env>
+  | IDict<Env>
   | IUnion<Env>;
 export type TSchema = {[k: string]: SingleType};
 
@@ -86,6 +92,8 @@ export type IEval<tso extends TypeObject<Env>, Env extends TSchema> = tso extend
   ? {result: number}
   : tso extends IList<Env>
   ? {result: Array<IEval<tso['elements'], Env>['result']>}
+  : tso extends IDict<Env>
+  ? {result: Record<string, IEval<tso['elements'], Env>['result']>}
   : tso extends IUnion<Env>
   ? {result: IEval<tso['first'], Env>['result'] | IEval<tso['second'], Env>['result'] }
   : never;

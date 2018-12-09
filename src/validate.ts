@@ -129,7 +129,7 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
       return {type: 'error', errors: [err(`value is not a JS object; it is a ${typeof value}`)]};
     }
     // We return an `any` that has been sanitized, or a list of errors in validation.
-    const out = {} as any;
+    const out = Object.create(null) as any;
     const errors = [] as IValidationError[];
     for (const prop of Object.keys(props)) {
       if (strictMissing && !hasKey(value, prop)) {
@@ -165,6 +165,31 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
       }
     }
     return errors.length ? {type: 'error', errors} : {type: 'ok', value: out};
+  }
+  function validateMany<t extends TypeObject<Env>>(
+    baseAccumulator: any,
+    keys: string[] | number[],
+    value: any,
+    typeObject: t,
+    path: Path
+  ): ValidationOutput<any> {
+    const out = baseAccumulator;
+    const errors = [] as IValidationError[];
+    for (const key of keys) {
+      const item = value[key];
+      const v = validateOne(item, typeObject, path.concat([key]), []);
+      if (v.type === 'error') {
+        for (const error of v.errors) {
+          errors.push(error);
+        }
+      } else {
+        out.push(v.value);
+      }
+    }
+    if (errors.length) {
+      return {type: 'error', errors};
+    }
+    return {type: 'ok', value: out as any};
   }
   function validateOne<t extends TypeObject<Env>>(
     value: any,
@@ -244,23 +269,14 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
           return singleErr('value is not an array');
         }
         const {elements} = typeObject as IList<Env>;
-        const out = [] as any[];
-        const errors = [] as IValidationError[];
-        for (let i = 0; i < value.length; i++) {
-          const item = value[i];
-          const v = validateOne(item, elements, path.concat([i]), []);
-          if (v.type === 'error') {
-            for (const error of v.errors) {
-              errors.push(error);
-            }
-          } else {
-            out.push(v.value);
-          }
+        return validateMany([], Array(value.length).map((_, i) => i), value, elements, path);
+      }
+      case 'dict': {
+        if (typeof value !== 'object') {
+          return singleErr('value is not an object');
         }
-        if (errors.length) {
-          return {type: 'error', errors};
-        }
-        return {type: 'ok', value: out as any};
+        const {elements} = typeObject as IList<Env>;
+        return validateMany(Object.create(null), Object.keys(value), value, elements, path);
       }
       case 'ref': {
         const ref = (typeObject as IReference<Env>).to;
