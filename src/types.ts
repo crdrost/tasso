@@ -1,20 +1,20 @@
-interface IUnit {
+export interface IUnit {
   type: 'unit';
 }
 
-interface INumber {
+export interface INumber {
   type: 'number';
   integer?: boolean;
 }
 
-interface IText {
+export interface IText {
   type: 'text';
   regex?: RegExp;
   minLength?: number;
   maxLength?: number;
 }
 
-interface IObject<Env extends TSchema> {
+export interface IObject<Env extends TSchema> {
   type: 'object';
   meta: TypeProps<Env>;
 }
@@ -25,17 +25,17 @@ export interface IEnumerated<Env extends TSchema> {
   typeKey: string;
 }
 
-interface IReference<Env extends TSchema> {
+export interface IReference<Env extends TSchema> {
   type: 'ref';
   to: keyof Env;
 }
 
-interface IList<Env extends TSchema> {
+export interface IList<Env extends TSchema> {
   type: 'list';
   elements: TypeObject<Env>;
 }
 
-interface IUnion<Env extends TSchema> {
+export interface IUnion<Env extends TSchema> {
   type: 'union';
   first: TypeObject<Env>;
   second: TypeObject<Env>;
