@@ -76,11 +76,12 @@ const run = (self: any): void => {
   const tNum = {type: 'number' as 'number'};
   const tUnit = {type: 'unit' as 'unit'};
   const tText = {type: 'text' as 'text'};
-
+  const tBool = {type: 'bool' as 'bool'};
   const schemaLib = {
     testUndefined: tUnit,
     testNumber: tNum,
     testString: tText,
+    testBool: tBool,
     testMaybeString: {type: 'union' as 'union', first: tUnit, second: tText},
     testObject: {type: 'object' as 'object', meta: {abc: tUnit, def: tNum, ghi: tText}},
     testChoice: {
@@ -106,6 +107,14 @@ const run = (self: any): void => {
   assertFalse(valid(null, 'testUndefined', schemaLib));
   assertFalse(valid(123, 'testUndefined', schemaLib));
   assertFalse(valid('abc', 'testUndefined', schemaLib));
+  assertFalse(valid(false, 'testUndefined', schemaLib));
+
+  assertTrue(typeEq(valueOfType(tBool), false));
+  assertTrue(typeEq(schemaReference('testBool', schemaLib), false));
+  assertFalse(valid(undefined, 'testBool', schemaLib));
+  assertFalse(valid(null, 'testBool', schemaLib));
+  assertFalse(valid(123, 'testBool', schemaLib));
+  assertFalse(valid('abc', 'testBool', schemaLib));
 
   assertTrue(typeEq(valueOfType(tNum), 123));
   assertTrue(typeEq(schemaReference('testNumber', schemaLib), 123 as number));
@@ -113,6 +122,7 @@ const run = (self: any): void => {
   assertFalse(valid('abc', 'testNumber', schemaLib));
   assertFalse(valid(null, 'testNumber', schemaLib));
   assertFalse(valid(undefined, 'testNumber', schemaLib));
+  assertFalse(valid(false, 'testNumber', schemaLib));
 
   assertTrue(typeEq(valueOfType(tText), 'abc'));
   assertTrue(typeEq(schemaReference('testString', schemaLib), 'abc' as string));
@@ -120,6 +130,7 @@ const run = (self: any): void => {
   assertFalse(valid(123, 'testString', schemaLib));
   assertFalse(valid(null, 'testString', schemaLib));
   assertFalse(valid(undefined, 'testString', schemaLib));
+  assertFalse(valid(false, 'testString', schemaLib));
 
   assertTrue(
     typeEq(
@@ -134,6 +145,7 @@ const run = (self: any): void => {
   assertTrue(valid(undefined, 'testMaybeString', schemaLib));
   assertFalse(valid(123, 'testMaybeString', schemaLib));
   assertFalse(valid(null, 'testMaybeString', schemaLib));
+  assertFalse(valid(false, 'testMaybeString', schemaLib));
 
   assertTrue(
     typeEq(schemaReference('testObject', schemaLib), {abc: undefined, def: 123, ghi: 'abc'})

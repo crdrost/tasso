@@ -102,7 +102,7 @@ targets and the data structures that they correspond to:
 
 In addition to these we have several primitives: a `unit` type (what JavaScript calls `undefined`),
 both `number` and `integer` types, a `text` type which can be specified with an optional regex for
-validation, and a `ref` to another type object in the schema.
+validation, a boolean type called `bool`, and a `ref` to another type object in the schema.
 
 There are some control structures which tasso does not do directly; for example you might have a
 TypeScript `Array<{key?: string, rowValues: IRow}>` type where you are expecting the keys to mostly

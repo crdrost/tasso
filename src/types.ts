@@ -2,6 +2,10 @@ export interface IUnit {
   type: 'unit';
 }
 
+export interface IBool {
+  type: 'bool';
+}
+
 export interface INumber {
   type: 'number';
   integer?: boolean;
@@ -46,6 +50,7 @@ export interface IUnion<Env extends TSchema> {
 export type TypeProps<Env extends TSchema> = Record<string, TypeObject<Env>>;
 export type TypeObject<Env extends TSchema> =
   | IUnit
+  | IBool
   | INumber
   | IText
   | IObject<Env>
@@ -92,6 +97,8 @@ export type ValueOfType<tso extends TypeObject<Env>, Env extends TSchema> = tso 
   ? {result: string}
   : tso extends IUnit
   ? {result: undefined}
+  : tso extends IBool
+  ? {result: boolean}
   : tso extends INumber
   ? {result: number}
   : tso extends IList<Env>

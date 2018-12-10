@@ -219,6 +219,11 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
           return singleErr(`value is of type ${typeof value}, not the unit type undefined.`);
         }
         return {type: 'ok', value: undefined as any};
+      case 'bool':
+        if (typeof value !== 'boolean') {
+          return singleErr(`value is of type ${typeof value}, not boolean.`);
+        }
+        return {type: 'ok', value: value as any};
       case 'text': {
         if (typeof value !== 'string') {
           return singleErr('value is not a string.');
