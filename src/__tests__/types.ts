@@ -83,7 +83,7 @@ const run = (self: any): void => {
     testString: tText,
     testBool: tBool,
     testMaybeString: {type: 'union' as 'union', first: tUnit, second: tText},
-    testObject: {type: 'object' as 'object', meta: {abc: tUnit, def: tNum, ghi: tText}},
+    testObject: {type: 'object' as 'object', properties: {abc: tUnit, def: tNum, ghi: tText}},
     testChoice: {
       type: 'choice' as 'choice',
       options: {abc: {value: tUnit}, def: {value: tNum}, ghi: {value: tText}},
@@ -178,7 +178,7 @@ const run = (self: any): void => {
       first: tUnit,
       second: {
         type: 'object' as 'object',
-        meta: {
+        properties: {
           first: {type: 'ref' as 'ref', to: 'item' as 'item'},
           rest: {type: 'ref' as 'ref', to: 'cell' as 'cell'}
         }
@@ -201,7 +201,7 @@ const run = (self: any): void => {
       first: tUnit,
       second: {
         type: 'object' as 'object',
-        meta: {
+        properties: {
           first: {type: 'ref' as 'ref', to: 'item' as 'item'},
           rest: {type: 'ref' as 'ref', to: 'cell' as 'cell'}
         }

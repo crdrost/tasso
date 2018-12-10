@@ -268,7 +268,7 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
         return out;
       }
       case 'object':
-        return validateProps(value, (typeObject as IObject<Env>).meta, typeObject, path);
+        return validateProps(value, (typeObject as IObject<Env>).properties, typeObject, path);
       case 'list': {
         if (!(value instanceof Array)) {
           return singleErr('value is not an array');

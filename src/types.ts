@@ -17,7 +17,7 @@ export interface IText {
 
 export interface IObject<Env extends TSchema> {
   type: 'object';
-  meta: TypeProps<Env>;
+  properties: TypeProps<Env>;
 }
 
 export interface IChoice<Env extends TSchema> {
@@ -92,7 +92,7 @@ export type ValueOfType<tso extends TypeObject<Env>, Env extends TSchema> = tso 
   : tso extends IChoice<Env>
   ? {result: TEvalOptions<tso['options'], tso['typeKey'], Env>}
   : tso extends IObject<Env>
-  ? {result: ValueOfTypeProps<tso['meta'], Env>}
+  ? {result: ValueOfTypeProps<tso['properties'], Env>}
   : tso extends IText
   ? {result: string}
   : tso extends IUnit
