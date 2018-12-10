@@ -73,7 +73,7 @@ const run = (self: any): void => {
     // we do not actually run anything in this function.
     return;
   }
-  const tNum = {type: 'number' as 'number'};
+  const tNum = {type: 'num' as 'num'};
   const tUnit = {type: 'unit' as 'unit'};
   const tText = {type: 'text' as 'text'};
   const tBool = {type: 'bool' as 'bool'};
@@ -134,7 +134,7 @@ const run = (self: any): void => {
 
   assertTrue(
     typeEq(
-      valueOfType({type: 'union' as 'union', first: {type: 'unit'}, second: {type: 'number'}}),
+      valueOfType({type: 'union' as 'union', first: {type: 'unit'}, second: {type: 'num'}}),
       123 as undefined | number
     )
   );

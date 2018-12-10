@@ -75,14 +75,14 @@ interface IValidationOptions {
   strictUnit?: boolean;
 
   /**
-   * By default a number schema will only validate against a JS number, a unit will only validate
+   * By default a num schema will only validate against a JS number, a unit will only validate
    * against a JS null or undefined, a boolean will only validate against a JS boolean. This option
    * allows you to specify which primitive schemas will, if a string is passed as input, JSON-parse
    * it before validation. This is provided mostly with the use case of HTTP query strings in mind;
    * they can _only_ contain strings but sometimes those strings may represent numbers or booleans
    * or units.
    */
-  jsonStrings?: Set<'number' | 'unit' | 'text' | 'object' | 'choice' | 'list'>;
+  jsonStrings?: Set<'num' | 'unit' | 'text' | 'object' | 'choice' | 'list'>;
 }
 
 /**
@@ -230,7 +230,7 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
         }
         return {type: 'ok', value: value as any};
       }
-      case 'number': {
+      case 'num': {
         // we might at some point expose a flag allowing Infinity and NaN here... but anyway this
         // expression also tests the `typeof` according to MDN so we should be good.
         if (!Number.isFinite(value)) {

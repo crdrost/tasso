@@ -7,7 +7,7 @@ export interface IBool {
 }
 
 export interface INumber {
-  type: 'number';
+  type: 'num';
   integer?: boolean;
 }
 

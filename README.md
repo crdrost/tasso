@@ -28,7 +28,7 @@ router.get('/path/to/thing', {
 ```
 
 Using `tasso` it is possible to ensure that inside this handler, TypeScript (and thus VS Code) can
-infer that the `query` argument has the shape `{id: integer}` without any further annotation from
+infer that the `query` argument has the shape `{id: number}` without any further annotation from
 you. This is possible because the config object for the route looks like,
 
 ```ts
@@ -101,8 +101,8 @@ targets and the data structures that they correspond to:
   the things they access.
 
 In addition to these we have several primitives: a `unit` type (what JavaScript calls `undefined`),
-both `number` and `integer` types, a `text` type which can be specified with an optional regex for
-validation, a boolean type called `bool`, and a `ref` to another type object in the schema.
+a `num` type for numbers which can validate integers, a `text` type for strings, a `bool` type for
+booleans, and a `ref` to another type object in the schema for recursion and DRY-ness.
 
 There are some control structures which tasso does not do directly; for example you might have a
 TypeScript `Array<{key?: string, rowValues: IRow}>` type where you are expecting the keys to mostly
