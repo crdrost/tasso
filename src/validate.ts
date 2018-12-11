@@ -95,7 +95,7 @@ interface IValidationOptions {
  */
 export default function validate<tso extends TypeObject<Env>, Env extends TSchema>(
   root: any,
-  spec: tso,
+  spec: tso | keyof Env,
   env: Env,
   options?: IValidationOptions
 ): ValidationOutput<ValueOfType<tso, Env>> {
@@ -323,5 +323,7 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
         return assertImpossible(typeObject.type);
     }
   }
-  return validateOne(root, spec, [], []) as any;
+  // any-typed because the typeof == string check is not strong enough to convince TypeScript that this is correct.
+  const actualSpec: any = typeof spec === 'string' ? {type: 'ref' as 'ref', to: spec} : spec;
+  return validateOne(root, actualSpec, [], []) as any;
 }
