@@ -68,7 +68,7 @@ type TChoiceHelper<
 > = {[flag in keyof opts]: {[t in typeKey]: flag} & ValueOfTypeProps<opts[flag], Env>};
 
 type ValueOfTypeProps<T extends TypeProps<Env>, Env extends TSchema> = {
-  [k in keyof T]: ValueOfType<T[k], Env>['result']
+  [k in keyof T]: TEval<T[k], Env, never>['result']
 };
 
 type TEvalOptions<
@@ -79,17 +79,22 @@ type TEvalOptions<
 
 // the 'result' key is needed to stop TypeScript from complaining, totally legitimately, about the circular references
 // that will ensue if we do this.
-export type SchemaReference<k extends keyof Env, Env extends TSchema> = ValueOfType<
-  Env[k],
-  Env
->['result'];
+export type SchemaReference<k extends keyof e, e extends TSchema> = ValueOfType<e[k], e>;
+
+export type ValueOfType<t extends TypeObject<e>, e extends TSchema> = TEval<t, e, never>['result'];
+
+// We want to propagate `never` up to the final type, and for the most part this just happens.
+// Like TypeScript sees {abc: never} and monadically joins that up to be never in the above mapped
+// types. But one place where it doesn't happen is in the union operator, where never | x turns out
+// to be equal to just x. So we use conditional types to deliberately propagate these nevers.
+type Merge<x, y> = x extends never ? never : y extends never ? never : x | y;
 
 // export type TypeObject<Env extends TSchema> = INoArgs | IText | IObject<Env> | IChoice<Env> | IReference<Env>
-export type ValueOfType<tso extends TypeObject<Env>, Env extends TSchema> = tso extends IReference<
-  Env
->
-  ? {result: SchemaReference<tso['to'], Env>}
-  : tso extends IChoice<Env>
+type TEval<
+  tso extends TypeObject<Env>,
+  Env extends TSchema,
+  x extends keyof Env // exclusions that may not appear in this place to defeat cyclic references.
+> = tso extends IChoice<Env>
   ? {result: TEvalOptions<tso['options'], tso['typeKey'], Env>}
   : tso extends IObject<Env>
   ? {result: ValueOfTypeProps<tso['properties'], Env>}
@@ -102,11 +107,13 @@ export type ValueOfType<tso extends TypeObject<Env>, Env extends TSchema> = tso 
   : tso extends INumber
   ? {result: number}
   : tso extends IList<Env>
-  ? {result: Array<ValueOfType<tso['elements'], Env>['result']>}
+  ? {result: Array<TEval<tso['elements'], Env, x>['result']>}
   : tso extends IDict<Env>
-  ? {result: Record<string, ValueOfType<tso['elements'], Env>['result']>}
+  ? {result: Record<string, TEval<tso['elements'], Env, x>['result']>}
   : tso extends IUnion<Env>
-  ? {result: ValueOfType<tso['first'], Env>['result'] | ValueOfType<tso['second'], Env>['result']}
+  ? {result: Merge<TEval<tso['first'], Env, x>['result'], TEval<tso['second'], Env, x>['result']>}
+  : tso extends IReference<Env>
+  ? (tso['to'] extends x ? never : {result: TEval<Env[tso['to']], Env, x | tso['to']>['result']})
   : never;
 
 export type SingleType = TypeObject<TSchema>;

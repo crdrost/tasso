@@ -57,13 +57,11 @@ function schemaReference<k extends keyof E, E extends TSchema>(
 function valueOfType<t extends SingleType>(type: t): ValueOfSingleType<t> {
   throw new Error(String(type));
 }
-/*
-// occasionally useful for debugging but TSLint is upset that we're not using it in the committed tests:
 
 function subtypeOf<A, B>(sub: A, sup: B): subtype<A, B> {
   throw new Error(String(sub) + sup);
 }
-*/
+
 function typeEq<A, B>(a: A, b: B): and<subtype<A, B>, subtype<B, A>> {
   throw new Error(String(a) + b);
 }
@@ -100,6 +98,10 @@ const run = (self: any): void => {
       elements: tNum
     }
   };
+  const nvr = 1 as never;
+
+  //this is just random sanity checking
+  assertTrue(subtypeOf(nvr, 'abc'));
 
   assertTrue(typeEq(valueOfType(tUnit), undefined as undefined));
   assertTrue(typeEq(schemaReference('testUndefined', schemaLib), undefined as undefined));
@@ -209,13 +211,21 @@ const run = (self: any): void => {
     }
   };
 
-  // Note that `null` on this schema is a valid inhabitant of any list type. what is failing here is
-  // the assertion that `badRef` is a valid schema **in the first place** before we even get to the
-  // question of whether `null` is a valid inhabitant of this schema.
-  //
-  // That is, this should pass `subtypeof<null, SchemaReference<'cell', typeof badRef>>` but our
-  // schema above also checked whether `
-  assertFalse(valid(null, 'cell' as 'cell', badRef));
+  // Note that `undefined` on this schema is a valid inhabitant of any list type. what is failing
+  // here is the assertion that `badRef` is a valid schema **in the first place** before we even get
+  // to the question of whether `null` is a valid inhabitant of this schema.
+  assertFalse(valid(undefined, 'cell' as 'cell', badRef));
+
+  // meanwhile this schema is self-recursive in an infinite loop and we're making sure that the
+  // evaluator simply breaks on this:
+  const infLoop = {
+    cell: {
+      type: 'union' as 'union',
+      first: tUnit,
+      second: {type: 'ref' as 'ref', to: 'cell' as 'cell'}
+    }
+  };
+  assertFalse(valid(undefined, 'cell' as 'cell', infLoop));
 
   assertTrue(typeEq(schemaReference('testList', schemaLib), [123]));
   assertFalse(valid(['abc'], 'testList', schemaLib));
