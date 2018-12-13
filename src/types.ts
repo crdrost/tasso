@@ -87,7 +87,7 @@ export type ValueOfType<t extends TypeObject<e>, e extends TSchema> = TEval<t, e
 // Like TypeScript sees {abc: never} and monadically joins that up to be never in the above mapped
 // types. But one place where it doesn't happen is in the union operator, where never | x turns out
 // to be equal to just x. So we use conditional types to deliberately propagate these nevers.
-type Merge<x, y> = x extends never ? never : y extends never ? never : x | y;
+type Merge<x, y> = x | y;
 
 // export type TypeObject<Env extends TSchema> = INoArgs | IText | IObject<Env> | IChoice<Env> | IReference<Env>
 type TEval<
@@ -106,14 +106,14 @@ type TEval<
   ? {result: boolean}
   : tso extends INumber
   ? {result: number}
-  : tso extends IList<Env>
-  ? {result: Array<TEval<tso['elements'], Env, x>['result']>}
-  : tso extends IDict<Env>
-  ? {result: Record<string, TEval<tso['elements'], Env, x>['result']>}
   : tso extends IUnion<Env>
   ? {result: Merge<TEval<tso['first'], Env, x>['result'], TEval<tso['second'], Env, x>['result']>}
   : tso extends IReference<Env>
   ? (tso['to'] extends x ? never : {result: TEval<Env[tso['to']], Env, x | tso['to']>['result']})
+  : tso extends IList<Env>
+  ? {result: Array<TEval<tso['elements'], Env, x>['result']>}
+  : tso extends IDict<Env>
+  ? {result: Record<string, TEval<tso['elements'], Env, x>['result']>}
   : never;
 
 export type SingleType = TypeObject<TSchema>;

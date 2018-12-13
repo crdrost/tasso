@@ -42,7 +42,8 @@ interface IValidationError {
   subErrors?: {first: IValidationError[]; second: IValidationError[]};
 }
 
-const hasKey = (x: object, v: string) => Object.prototype.hasOwnProperty.call(x, v);
+const hasKey = (x: any, v: string) =>
+  typeof x === 'object' && x !== null && Object.prototype.hasOwnProperty.call(x, v);
 
 interface IValidationOptions {
   /**
