@@ -5,14 +5,14 @@
     "outDir": "dist",
     "alwaysStrict": true,
     "declaration": true,
-    "declarationMap": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "rootDir": "src",
-    "target": "es2017"
+    "target": "es2017",
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts"]
 }

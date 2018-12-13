@@ -1,1 +1,4 @@
 node_modules
+doc
+dist
+.vscode
