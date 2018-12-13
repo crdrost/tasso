@@ -1,7 +1,7 @@
 {
   "name": "tasso",
-  "version": "0.0.0",
-  "description": "Semi-structured HTTP routing with TypeScript and OpenAPI.",
+  "version": "0.0.1",
+  "description": "TypeScript Schema Objects: a library for runtime representations of TypeScript types.",
   "main": "index.js",
   "scripts": {
     "make-docs": "typedoc src --out doc",
