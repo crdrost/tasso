@@ -80,6 +80,7 @@ const run = (self: any): void => {
     testNumber: tNum,
     testString: tText,
     testBool: tBool,
+    testBlob: {type: 'blob' as 'blob'},
     testMaybeString: {type: 'union' as 'union', first: tUnit, second: tText},
     testObject: {type: 'object' as 'object', properties: {abc: tUnit, def: tNum, ghi: tText}},
     testChoice: {
@@ -230,6 +231,8 @@ const run = (self: any): void => {
   assertTrue(typeEq(schemaReference('testList', schemaLib), [123]));
   assertFalse(valid(['abc'], 'testList', schemaLib));
   assertFalse(valid(123, 'testList', schemaLib));
+
+  assertTrue(typeEq(schemaReference('testBlob', schemaLib), 123 as any));
 };
 
 // this just exists to stop `run` from generating a typescript error about dead code.

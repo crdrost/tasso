@@ -71,6 +71,11 @@ export const int = {type: 'num' as 'num', integer: true};
 export const text = {type: 'text' as 'text'};
 
 /**
+ * The TSO for the blob type -- validates everything as `any`.
+ */
+export const blob = {type: 'blob' as 'blob'};
+
+/**
  * The TSO for records/product-types: you give this a dict mapping property names to TSOs, and it
  * will produce an object type for that property mapping.
  */

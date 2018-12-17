@@ -7,6 +7,7 @@ const metaschema = {
     bool: {},
     number: {integer: tasso.maybe(tasso.bool)},
     text: {},
+    blob: {},
     object: {properties: refs.props},
     choice: {typeKey: tasso.text, options: tasso.dict(refs.props)},
     ref: {to: tasso.text},

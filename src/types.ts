@@ -15,6 +15,10 @@ export interface IText {
   type: 'text';
 }
 
+export interface IBlob {
+  type: 'blob';
+}
+
 export interface IObject<Env extends TSchema> {
   type: 'object';
   properties: TypeProps<Env>;
@@ -53,6 +57,7 @@ export type TypeObject<Env extends TSchema> =
   | IBool
   | INumber
   | IText
+  | IBlob
   | IObject<Env>
   | IChoice<Env>
   | IReference<Env>
@@ -106,6 +111,8 @@ type TEval<
   ? {result: boolean}
   : tso extends INumber
   ? {result: number}
+  : tso extends IBlob
+  ? {result: any}
   : tso extends IUnion<Env>
   ? {result: Merge<TEval<tso['first'], Env, x>['result'], TEval<tso['second'], Env, x>['result']>}
   : tso extends IReference<Env>

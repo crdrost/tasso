@@ -242,6 +242,8 @@ export default function validate<tso extends TypeObject<Env>, Env extends TSchem
         }
         return {type: 'ok', value};
       }
+      case 'blob':
+        return {type: 'ok', value};
       case 'choice': {
         // to validate a choice type we need to ensure that the typeKey and valueKey exist on the
         // output, that the string mapped to by the type
