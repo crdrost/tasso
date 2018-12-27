@@ -1,47 +1,19 @@
 import {TypeObject, TSchema, TypeProps} from './types';
 
-/**
- * Type for a references object; some `r: Refs<'abc' | 'def'>` can be used with `r.abc` to reference
- * `{type: 'ref' as 'ref', to: 'abc' as 'abc'}` or `r.def` to reference `def` similarly.
- */
-export type Refs<keys extends string> = {[k in keys]: {type: 'ref'; to: k}};
+const refCache = new Map<string, {type: 'ref'; to: any}>();
 
 /**
- * This makes a references object. To break a circular evaluation, you have to give it the
- * references you need as type parameters; it will create the necessary references on the
- * fly when you access its properties. So usage is:
- *
- * ```ts
- * const {refs, list, maybe, num, object} = tasso.helpers;
- * const myRefs = refs<'cons' | 'item'>();
- * const myListSchema = {
- *   item: num,
- *   cons: maybe(object({first: refs.item, rest: refs.cons}))
- * }
- * ```
- *
- * and you just trust that referencing `refs.item` creates the appropriately typed value,
- *
- * ```ts
- * const refs_item: {type: 'ref', to: 'item'} = {type: 'ref', to: 'item'};
- * ```
- *
- * TypeScript will complain if you try to access `refs.other` but the implementation will make it,
- * if you get TypeScript to shut up aboout it.
+ * A schema reference. Within a schema of type objects, a reference to another TSO in the schema
+ * allows de-duplication and the potential for defining self-referential data structures.
+ * @param to - the string that you are referencing.
  */
-export function refs<keys extends string>(): Refs<keys> {
-  const cache = Object.create(null) as any;
-  const out: any = new Proxy(
-    {},
-    {
-      get(_target, prop) {
-        if (!Object.prototype.hasOwnProperty.call(cache, prop)) {
-          cache[prop] = {type: 'ref', to: prop};
-        }
-        return cache[prop];
-      }
-    }
-  );
+export function ref<t extends string>(to: t): {type: 'ref'; to: t} {
+  const candidate = refCache.get(to);
+  if (candidate) {
+    return candidate;
+  }
+  const out = {type: 'ref' as 'ref', to};
+  refCache.set(to, out);
   return out;
 }
 

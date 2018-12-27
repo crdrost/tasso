@@ -1,6 +1,6 @@
 import {IReference, SchemaReference, ValueOfSingleType} from '../types';
 import {
-  refs,
+  ref,
   object,
   unit,
   num,
@@ -20,11 +20,10 @@ import {
 // layer of using these examples to make sure that the structure is roughly what we expected.
 
 test('basic structure of refs', () => {
-  const x = refs<'abc' | 'def'>();
-  const y: IReference<{def: {type: 'unit'}}> = x.def;
+  const y: IReference<{def: {type: 'unit'}}> = ref('def');
   expect(y).toEqual({type: 'ref', to: 'def'});
-  expect(x.abc).toEqual({type: 'ref', to: 'abc'});
-  expect(x.abc).toBe(x.abc);
+  expect(ref('abc')).toEqual({type: 'ref', to: 'abc'});
+  expect(ref('abc')).toBe(ref('abc'));
 });
 
 test('type structure of objects', () => {

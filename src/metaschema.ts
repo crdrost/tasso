@@ -1,6 +1,5 @@
 import * as tasso from './helpers';
 
-const refs = tasso.refs<'singleSchema' | 'props'>();
 const metaschema = {
   singleSchema: tasso.choice({
     unit: {},
@@ -8,14 +7,14 @@ const metaschema = {
     number: {integer: tasso.maybe(tasso.bool)},
     text: {},
     blob: {},
-    object: {properties: refs.props},
-    choice: {typeKey: tasso.text, options: tasso.dict(refs.props)},
+    object: {properties: tasso.ref('props')},
+    choice: {typeKey: tasso.text, options: tasso.dict(tasso.ref('props'))},
     ref: {to: tasso.text},
-    list: {elements: refs.singleSchema},
-    dict: {elements: refs.singleSchema},
-    union: {first: refs.singleSchema, second: refs.singleSchema}
+    list: {elements: tasso.ref('singleSchema')},
+    dict: {elements: tasso.ref('singleSchema')},
+    union: {first: tasso.ref('singleSchema'), second: tasso.ref('singleSchema')}
   }),
-  props: tasso.dict(refs.singleSchema)
+  props: tasso.dict(tasso.ref('singleSchema'))
 };
 
 export default metaschema;

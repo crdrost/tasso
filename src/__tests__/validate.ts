@@ -16,10 +16,9 @@ function expectErrors(output: ValidationOutput<any>): void {
 
 // test basic recursion
 test('validate basic recursion', () => {
-  const refs = tasso.refs<'item' | 'cell'>();
   const stringStack = {
     item: tasso.text,
-    cell: tasso.maybe(tasso.object({first: refs.item, rest: refs.cell}))
+    cell: tasso.maybe(tasso.object({first: tasso.ref('item'), rest: tasso.ref('cell')}))
   };
   const testVal = {first: 'abc', rest: {first: 'def', rest: {first: 'ghi', rest: null}}};
   const testStack = validate(testVal, 'cell', stringStack);
